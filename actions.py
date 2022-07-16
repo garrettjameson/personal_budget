@@ -1,17 +1,11 @@
 # functions for the budget analyzer to download, process, and display data
 
+import os.path
 import mintapi
-# import pandas as pd
-import constants as const
+import pandas as pd
+import path
 
-def scrape():
-    budget_data = mint.get_budget_data() # returns a whole data frame with
-    networth = mint.get_net_worth_data() # seems like it returns one number, not sure how helpful
-    accounts = mint.get_account_data() # Not sure what this returns
-    data_pull = mint.get_data()  # returns all data? If so, might scrap the other functions for this
-                                 # to be used exclusively
-    mint.close() # closes out session TODO: move to front of scrape? might work to close window
-    return budget_data, networth
+import constants as const
 
 mint = mintapi.Mint(
     const.username,  # Email used to log in to Mint
@@ -49,3 +43,19 @@ mint = mintapi.Mint(
     driver=None        # pre-configured driver. If None, Mint will initialize the WebDriver.
   )
 
+def scrape():
+    budget_data = mint.get_budget_data()
+    networth = mint.get_net_worth_data()
+    accounts = mint.get_account_data()
+    transactions = mint.get_transaction_data()
+    # TODO: Consider using get_data() and passing it start and end dates for more control
+    mint.close()  # closes out session
+    return budget_data, networth, accounts, transactions
+
+# TODO: build plotter function to plot budget data
+def save_data_frame(name, data):
+    df = pd.DataFrame(data)
+    save_location = str(r"C:\Users\garre\Documents\Finance\Mint_Api_Files")
+    full_file_location = os.path.join(save_location, name+".csv")
+    df.to_csv(full_file_location)
+    return df
